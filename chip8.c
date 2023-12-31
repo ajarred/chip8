@@ -517,8 +517,8 @@ void handle_input(chip8_t *chip8, config_t *config)
 void emulate_instruction(chip8_t *chip8, const config_t config)
 {
     bool carry; // save carry flag/VF value for some instructions
-    printf("Address: 0x%04X, Opcode: 0x%04X Desc: ", 
-            chip8->PC-2, chip8->inst.opcode); // Debug
+    // printf("Address: 0x%04X, Opcode: 0x%04X Desc: ", 
+    //         chip8->PC-2, chip8->inst.opcode); // Debug
 
     // Get next opcode from ram
     chip8->inst.opcode = (chip8->ram[chip8->PC] << 8) | chip8->ram[chip8->PC+1];
@@ -539,7 +539,7 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             if (chip8->inst.NN == 0xE0)
             {
                 // 00E0: Clear the display.
-                printf("Clear screen\n"); // Debug
+                // printf("Clear screen\n"); // Debug
 
                 memset(&chip8->display[0], false, sizeof chip8->display);
                 chip8->draw = true; // Will update screen on next 60hz tick
@@ -549,21 +549,21 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
                 // 00EE: Return from a subroutine.
                 // Set program counter to last address from subroutine stack ("pop" it off the stack)
                 //      so next opcode will be obtained from that address
-                printf("Return from subroutine to address 0x%04X\n", 
-                        *(chip8->stack_ptr - 1));   // Debug
+                // printf("Return from subroutine to address 0x%04X\n", 
+                //         *(chip8->stack_ptr - 1));   // Debug
                 chip8->PC = *--chip8->stack_ptr;
             }
             else 
             {
                 // Unimplemented/invalid opcode, may be 0xNNN for calling machine code routine for RCA1802
-                printf("Unimplemented Opcode.\n");   // Debug
+                // printf("Unimplemented Opcode.\n");   // Debug
             }
             break;
 
         case 0x01:
             // 1NNN: Jump to address NNN. 
-            printf("Jump to address NNN (0x%04X)\n",
-                    chip8->inst.NNN);   // Debug
+            // printf("Jump to address NNN (0x%04X)\n",
+            //         chip8->inst.NNN);   // Debug
             chip8->PC = chip8->inst.NNN;    // Set program counter so next opcode is from NNN
             break;
 
@@ -572,16 +572,16 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             // Store current address to return to on subroutine stack ("push" it on the stack)
             //      and set program counter to subroutine address so
             //      the next opcode is obtained there 
-            printf("Call subroutine at NNN (0x%04X)\n",
-                    chip8->inst.NNN);
+            // printf("Call subroutine at NNN (0x%04X)\n",
+            //         chip8->inst.NNN); // Debug
             *chip8->stack_ptr++ = chip8->PC; 
             chip8->PC = chip8->inst.NNN;
             break;
 
         case 0x03:
             // 3XNN: Skip next instruction if Vx == NN
-            printf("Check if V%X (0x%02X) == NN (0x%02X), skip next instruction if true\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN);
+            // printf("Check if V%X (0x%02X) == NN (0x%02X), skip next instruction if true\n",
+            //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN); // Debug
             if (chip8->V[chip8->inst.X] == chip8->inst.NN)
             {
                chip8->PC += 2;
@@ -590,8 +590,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
         case 0x04:
             // 4XNN: Skip next instruction if Vx != NN
-            printf("Check if V%X (0x%02X) != NN (0x%02X), skip next instruction if true\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN);
+            // printf("Check if V%X (0x%02X) != NN (0x%02X), skip next instruction if true\n",
+            //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN); // Debug
             if (chip8->V[chip8->inst.X] != chip8->inst.NN)
             {
                chip8->PC += 2;
@@ -600,9 +600,9 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
         case 0x05:
             // 5XY0: Skips the next instruction if VX == VY
-            printf("Check if V%X (0x%02X) == V%X (0x%02X), skip next instruction if true\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], 
-                    chip8->inst.Y, chip8->V[chip8->inst.Y]);
+            // printf("Check if V%X (0x%02X) == V%X (0x%02X), skip next instruction if true\n",
+            //         chip8->inst.X, chip8->V[chip8->inst.X], 
+            //         chip8->inst.Y, chip8->V[chip8->inst.Y]); // Debug
             if (chip8->inst.N != 0)
                 break;
             if (chip8->V[chip8->inst.X] == chip8->V[chip8->inst.Y])
@@ -613,15 +613,15 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
         case 0x06:
             // 6xNN: Set register VX to NN
-            printf("Set V%X = 0x%02X\n", chip8->inst.X, chip8->inst.NN);
-            chip8->V[chip8->inst.X] = chip8->inst.NN;   // Debug
+            // printf("Set V%X = 0x%02X\n", chip8->inst.X, chip8->inst.NN); // Debug
+            chip8->V[chip8->inst.X] = chip8->inst.NN;   
             break;
 
         case 0x07:
             // 7xNN: Set register VX += NN
-            printf("Set V%X  (0x%02X) += NN (0x%02X). Result: 0x%02X\n", 
-                    chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN,
-                    chip8->V[chip8->inst.X] + chip8->inst.NN);   // Debug
+            // printf("Set V%X  (0x%02X) += NN (0x%02X). Result: 0x%02X\n", 
+            //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.NN,
+            //         chip8->V[chip8->inst.X] + chip8->inst.NN);   // Debug
             chip8->V[chip8->inst.X] += chip8->inst.NN;
             break;
 
@@ -630,18 +630,18 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             {
                 case 0x0:
                     // 8XY0: Set register VX = VY
-                    printf("Set V%X = V%X (0x%02X).\n", 
-                        chip8->inst.X, chip8->inst.Y, 
-                        chip8->V[chip8->inst.Y]);   // Debug
+                    // printf("Set V%X = V%X (0x%02X).\n", 
+                    //     chip8->inst.X, chip8->inst.Y, 
+                    //     chip8->V[chip8->inst.Y]);   // Debug
                     chip8->V[chip8->inst.X] = chip8->V[chip8->inst.Y];
                     break;
 
                 case 0x1:
                     // 8XY1: Set register Vx |= Vy
-                    printf("Set V%X (0x%02X) |= V%X (0x%02X). Result: 0x%02X\n", 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->inst.Y, chip8->V[chip8->inst.Y],
-                        chip8->V[chip8->inst.X] | chip8->V[chip8->inst.Y]);   // Debug
+                    // printf("Set V%X (0x%02X) |= V%X (0x%02X). Result: 0x%02X\n", 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->inst.Y, chip8->V[chip8->inst.Y],
+                    //     chip8->V[chip8->inst.X] | chip8->V[chip8->inst.Y]);   // Debug
                     chip8->V[chip8->inst.X] |= chip8->V[chip8->inst.Y];
                     if (config.current_extension == CHIP8)
                         chip8->V[0XF] = 0; // CHIP8 only quirk
@@ -649,10 +649,10 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x2:
                     // 8XY2: Set register Vx &= Vy
-                    printf("Set V%X (0x%02X) &= V%X (0x%02X). Result: 0x%02X\n", 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->inst.Y, chip8->V[chip8->inst.Y],
-                        chip8->V[chip8->inst.X] & chip8->V[chip8->inst.Y]);   // Debug
+                    // printf("Set V%X (0x%02X) &= V%X (0x%02X). Result: 0x%02X\n", 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->inst.Y, chip8->V[chip8->inst.Y],
+                    //     chip8->V[chip8->inst.X] & chip8->V[chip8->inst.Y]);   // Debug
                     chip8->V[chip8->inst.X] &= chip8->V[chip8->inst.Y];
                     if (config.current_extension == CHIP8)
                         chip8->V[0XF] = 0; // CHIP8 only quirk
@@ -660,10 +660,10 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x3:
                     // 8XY3: Set register Vx ^= Vy
-                    printf("Set V%X (0x%02X) ^= V%X (0x%02X). Result: 0x%02X\n", 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->inst.Y, chip8->V[chip8->inst.Y],
-                        chip8->V[chip8->inst.X] ^ chip8->V[chip8->inst.Y]);   // Debug
+                    // printf("Set V%X (0x%02X) ^= V%X (0x%02X). Result: 0x%02X\n", 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->inst.Y, chip8->V[chip8->inst.Y],
+                    //     chip8->V[chip8->inst.X] ^ chip8->V[chip8->inst.Y]);   // Debug
                     chip8->V[chip8->inst.X] ^= chip8->V[chip8->inst.Y];
                     if (config.current_extension == CHIP8)
                         chip8->V[0XF] = 0; // CHIP8 only quirk
@@ -671,11 +671,11 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x4:
                     // 8XY4: Set register Vx += Vy, VF = 1 when there's a carry, and to 0 when there is not. 
-                    printf("Set V%X (0x%02X) += V%X (0x%02X), VF = 1 if carry; Result: 0x%02X, VF = %X\n", 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->inst.Y, chip8->V[chip8->inst.Y],
-                        chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y],
-                        ((uint16_t)(chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y]) > 0xFF));   // Debug
+                    // printf("Set V%X (0x%02X) += V%X (0x%02X), VF = 1 if carry; Result: 0x%02X, VF = %X\n", 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->inst.Y, chip8->V[chip8->inst.Y],
+                    //     chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y],
+                    //     ((uint16_t)(chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y]) > 0xFF));   // Debug
 
                     carry = ((uint16_t)(chip8->V[chip8->inst.X] + chip8->V[chip8->inst.Y]) > 255);
 
@@ -685,11 +685,11 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x5:
                     // 8XY5: Set register Vx -= Vy
-                    printf("Set V%X (0x%02X) -= V%X (0x%02X), VF = 1 if no borrow; Result: 0x%02X, VF = %X\n", 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->inst.Y, chip8->V[chip8->inst.Y],
-                        chip8->V[chip8->inst.X] - chip8->V[chip8->inst.Y],
-                        (chip8->V[chip8->inst.X] > chip8->V[chip8->inst.Y]));   // Debug
+                    // printf("Set V%X (0x%02X) -= V%X (0x%02X), VF = 1 if no borrow; Result: 0x%02X, VF = %X\n", 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->inst.Y, chip8->V[chip8->inst.Y],
+                    //     chip8->V[chip8->inst.X] - chip8->V[chip8->inst.Y],
+                    //     (chip8->V[chip8->inst.X] > chip8->V[chip8->inst.Y]));   // Debug
 
                     carry = (chip8->V[chip8->inst.X] >= chip8->V[chip8->inst.Y]);
                     chip8->V[chip8->inst.X] -= chip8->V[chip8->inst.Y];
@@ -698,10 +698,10 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x6:
                     // 8XY6: Stores the least significant bit of VX in VF and then shifts VX to the right by 1
-                    printf("Set V%X (0x%02X) >>= 1, VF = shifted off bit; Result (%X); Result: 0x%02X\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X],
-                            chip8->V[chip8->inst.X] & 1,
-                            chip8->V[chip8->inst.X] >> 1); // Debug
+                    // printf("Set V%X (0x%02X) >>= 1, VF = shifted off bit; Result (%X); Result: 0x%02X\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X],
+                    //         chip8->V[chip8->inst.X] & 1,
+                    //         chip8->V[chip8->inst.X] >> 1); // Debug
                     if (config.current_extension == CHIP8)
                     {
                         carry = chip8->V[chip8->inst.Y] & 1;    // Use VY
@@ -718,11 +718,11 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x7:
                     // 8XY7: Sets VX = VY minus VX. VF is set to 0 when there's a borrow, and 1 when there is not. 
-                    printf("Set V%X = V%X (0x%02X) - V%X (0x%02X), VF = 1 if no borrow; Result: 0x%02X, VF = %X\n", 
-                        chip8->inst.X,  chip8->inst.Y, chip8->V[chip8->inst.Y], 
-                        chip8->inst.X, chip8->V[chip8->inst.X],
-                        chip8->V[chip8->inst.Y] - chip8->V[chip8->inst.X],
-                        (chip8->V[chip8->inst.Y] > chip8->V[chip8->inst.X]));   // Debug
+                    // printf("Set V%X = V%X (0x%02X) - V%X (0x%02X), VF = 1 if no borrow; Result: 0x%02X, VF = %X\n", 
+                    //     chip8->inst.X,  chip8->inst.Y, chip8->V[chip8->inst.Y], 
+                    //     chip8->inst.X, chip8->V[chip8->inst.X],
+                    //     chip8->V[chip8->inst.Y] - chip8->V[chip8->inst.X],
+                    //     (chip8->V[chip8->inst.Y] > chip8->V[chip8->inst.X]));   // Debug
                     carry = (chip8->V[chip8->inst.Y] >= chip8->V[chip8->inst.X]);
                     chip8->V[chip8->inst.X] = chip8->V[chip8->inst.Y] - chip8->V[chip8->inst.X];
                     chip8->V[0XF] = carry;
@@ -730,10 +730,10 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0xE:
                     // 8XYE: Stores the most significant bit of VX in VF and then shifts VX to the left by 1.
-                    printf("Set register V%X (0x%02X) <<= 1, VF = shited off bit(%X); Result: 0x%02X\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X],
-                            (chip8->V[chip8->inst.X] & 0x80) >> 7,
-                            chip8->V[chip8->inst.X] << 1);
+                    // printf("Set register V%X (0x%02X) <<= 1, VF = shited off bit(%X); Result: 0x%02X\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X],
+                    //         (chip8->V[chip8->inst.X] & 0x80) >> 7,
+                    //         chip8->V[chip8->inst.X] << 1); // Debug
                     if (config.current_extension == CHIP8)
                     {
                         carry = (chip8->V[chip8->inst.Y] & 0x80) >> 7;  // Use VY
@@ -755,30 +755,30 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
         case 0x09:
             // 9XY0: Skip next instruction when VX != VY
-            printf("Check if V%X (0x%02X) != V%X (0x%02X), skip next instruction if true\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], 
-                    chip8->inst.Y, chip8->V[chip8->inst.Y]);
+            // printf("Check if V%X (0x%02X) != V%X (0x%02X), skip next instruction if true\n",
+            //         chip8->inst.X, chip8->V[chip8->inst.X], 
+            //         chip8->inst.Y, chip8->V[chip8->inst.Y]); // Debug
             if (chip8->V[chip8->inst.X] != chip8->V[chip8->inst.Y])
                 chip8->PC += 2;
             break;
 
         case 0x0A:
             // ANNN: Set index register I to address NNN
-            printf("Set I to address 0x%04X\n", chip8->inst.NNN);   // Debug
+            // printf("Set I to address 0x%04X\n", chip8->inst.NNN);   // Debug
             chip8->I = chip8->inst.NNN;
             break;
 
         case 0x0B:
             // BNNN: Jump to V0 + NNN
-            printf("Set PC to V0 (0x%02X) + NNN (0x%04X); Result PC = 0x%04X\n",
-                    chip8->V[0], chip8->inst.NNN, chip8->V[0] + chip8->inst.NNN);   // Debug
+            // printf("Set PC to V0 (0x%02X) + NNN (0x%04X); Result PC = 0x%04X\n",
+            //         chip8->V[0], chip8->inst.NNN, chip8->V[0] + chip8->inst.NNN);   // Debug
             chip8->PC = chip8->V[0] + chip8->inst.NNN;
             break;
 
         case 0x0C:
             // CXNN: Set register VX = rand % 256 & NN (bitwise AND)
-            printf("Set V%X = rand() %% 256 & NN (0x%02X)\n",
-                    chip8->inst.X, chip8->inst.NN);     // Debug
+            // printf("Set V%X = rand() %% 256 & NN (0x%02X)\n",
+            //         chip8->inst.X, chip8->inst.NN);     // Debug
             chip8->V[chip8->inst.X] = (rand() % 256) & chip8->inst.NN;
             break;
 
@@ -787,10 +787,10 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             //      Screen pixels are XOR'd with sprite bits
             //      VF (Carry flag) is set if any screen pixels are set off; This is useful 
             //      for collision detection or other reasons.
-            printf("Draw N (%u) height sprite at coords V%X (0x%02X), V%X (0x%02X) "
-                   "from memory location I (0x%04X). Set VF = 1 if any pixels are turned off.\n",
-                   chip8->inst.N, chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.Y, 
-                   chip8->V[chip8->inst.Y], chip8->I);   // Debug
+            // printf("Draw N (%u) height sprite at coords V%X (0x%02X), V%X (0x%02X) "
+            //        "from memory location I (0x%04X). Set VF = 1 if any pixels are turned off.\n",
+            //        chip8->inst.N, chip8->inst.X, chip8->V[chip8->inst.X], chip8->inst.Y, 
+            //        chip8->V[chip8->inst.Y], chip8->I);   // Debug
 
             uint8_t X_coord = chip8->V[chip8->inst.X] % config.window_width;
             uint8_t Y_coord = chip8->V[chip8->inst.Y] % config.window_height;
@@ -831,16 +831,16 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             if (chip8->inst.NN == 0x9E)
             {
                 // EX9E: Skip next instruction when key in VX is pressed
-                printf("Skip next instruction if key in V%X (0x%02X) is pressed; Keypad value: %d\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], chip8->keypad[chip8->V[chip8->inst.X]]); // Debug
+                // printf("Skip next instruction if key in V%X (0x%02X) is pressed; Keypad value: %d\n",
+                //     chip8->inst.X, chip8->V[chip8->inst.X], chip8->keypad[chip8->V[chip8->inst.X]]); // Debug
                 if (chip8->keypad[chip8->V[chip8->inst.X]])
                     chip8->PC += 2;
             }
             else if (chip8->inst.NN == 0xA1)
             {
                 // EXA1: Skip next instruction when key in VX is not pressed
-                printf("Skip next instruction if key in V%X (0x%02X) is not pressed; Keypad value: %d\n",
-                    chip8->inst.X, chip8->V[chip8->inst.X], chip8->keypad[chip8->V[chip8->inst.X]]); // Debug
+                // printf("Skip next instruction if key in V%X (0x%02X) is not pressed; Keypad value: %d\n",
+                //     chip8->inst.X, chip8->V[chip8->inst.X], chip8->keypad[chip8->V[chip8->inst.X]]); // Debug
                 if (!chip8->keypad[chip8->V[chip8->inst.X]])
                     chip8->PC += 2;
             }
@@ -851,8 +851,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
             {
                 case 0x0A:
                     // FX0A: VX = get key; Await until a keypress and store in VX
-                    printf("Await until a key is pressed; Store key in V%X\n",
-                            chip8->inst.X);
+                    // printf("Await until a key is pressed; Store key in V%X\n",
+                    //         chip8->inst.X); // Debug
                     static bool any_key_pressed = false;
                     static uint8_t key = 0XFF;
                     for (uint8_t i = 0; key == 0xFF && i < sizeof chip8->keypad; i++)
@@ -886,38 +886,38 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x1E:
                     // FX1E: I += VX; Add VX to I. For non-Amiga CHIP8, does not affect VF
-                    printf("I (0x%04X) += V%X (0x%02X); Result (I): 0x%04X\n",
-                            chip8->I, chip8->inst.X, chip8->V[chip8->inst.X],
-                            chip8->I + chip8->V[chip8->inst.X]);
+                    // printf("I (0x%04X) += V%X (0x%02X); Result (I): 0x%04X\n",
+                    //         chip8->I, chip8->inst.X, chip8->V[chip8->inst.X],
+                    //         chip8->I + chip8->V[chip8->inst.X]); // Debug
                     chip8->I += chip8->V[chip8->inst.X];    
                     break;
 
                 case 0x07:
                     // FX07: VX = delay timer 
-                    printf("Set V%X = delay timer value (0x%02X)\n",
-                            chip8->inst.X, chip8->delay_timer);
+                    // printf("Set V%X = delay timer value (0x%02X)\n",
+                    //         chip8->inst.X, chip8->delay_timer); // Debug
                     chip8->V[chip8->inst.X] = chip8->delay_timer;
                     break;
 
                 case 0x15:
                     // FX15: delay timer = VX 
-                    printf("Set delay timer value = V%X (0x%02X)\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X]);
+                    // printf("Set delay timer value = V%X (0x%02X)\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X]); // Debug
                     chip8->delay_timer = chip8->V[chip8->inst.X];
                     break;
 
                 case 0x18:
                     // FX18: sound timer = VX 
-                    printf("Set sound timer value = V%X (0x%02X)\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X]);
+                    // printf("Set sound timer value = V%X (0x%02X)\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X]); // Debug
                     chip8->sound_timer = chip8->V[chip8->inst.X];
                     break;
 
                 case 0x29:
                     // FX29: Set register I to sprite location in memory for character VX (0x0-0xF)
-                    printf("Set I to sprite location in memory for character in V%X (0x%2X)." 
-                            "Result (VX*5) = (0x%02X)\n",
-                            chip8->I, chip8->V[chip8->inst.X], chip8->V[chip8->inst.X] * 5);
+                    // printf("Set I to sprite location in memory for character in V%X (0x%2X)." 
+                    //         "Result (VX*5) = (0x%02X)\n",
+                    //         chip8->I, chip8->V[chip8->inst.X], chip8->V[chip8->inst.X] * 5); // Debug
                             
                     chip8->I = chip8->V[chip8->inst.X] * 5;
                     break;
@@ -925,8 +925,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
                 case 0x33:
                     // FX33: Store BCD representation of VX at memory offset from I; 
                     //      I = hundred's place, I+1 = ten's place, I+2 = one's place
-                    printf("Store BCD representation of V%X (0x%02X) at memory from I (0x%04X)\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X], chip8->I);
+                    // printf("Store BCD representation of V%X (0x%02X) at memory from I (0x%04X)\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->I); // Debug
                     uint8_t bcd = chip8->V[chip8->inst.X];
                     for (int8_t i = 2; i >= 0; i--)
                     {
@@ -937,8 +937,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x55:
                     // FX55: Register dump V0-VX inclusive to memory offset from I
-                    printf("Register dump V0-V%X (0x%02X) inclusive at memory from I (0x%04X)\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X], chip8->I);
+                    // printf("Register dump V0-V%X (0x%02X) inclusive at memory from I (0x%04X)\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->I); // Debug
                     for (uint8_t i = 0; i <= chip8->inst.X; i++)
                     {   
                         if (config.current_extension == CHIP8)
@@ -951,8 +951,8 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
 
                 case 0x65:
                     // FX65: Register load V0-VX inclusive from memory offset from I
-                    printf("Register load V0-V%X (0x%02X) inclusive at memory from I (0x%04X)\n",
-                            chip8->inst.X, chip8->V[chip8->inst.X], chip8->I);
+                    // printf("Register load V0-V%X (0x%02X) inclusive at memory from I (0x%04X)\n",
+                    //         chip8->inst.X, chip8->V[chip8->inst.X], chip8->I); // Debug
                     for (uint8_t i = 0; i <= chip8->inst.X; i++)
                     {
                         if (config.current_extension == CHIP8)
@@ -963,13 +963,13 @@ void emulate_instruction(chip8_t *chip8, const config_t config)
                     break;
 
                 default:
-                    printf("Unimplemented/invalid opcode\n");
+                    // printf("Unimplemented/invalid opcode\n"); // Debug
                     break;
             }
             break;
 
         default:
-            printf("Unimplemented Opcode.\n");
+            // printf("Unimplemented Opcode.\n"); // Debug
             break;  // Unimplemented or invalid opcode
     }
 }
