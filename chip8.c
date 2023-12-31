@@ -418,6 +418,18 @@ void handle_input(chip8_t *chip8, config_t *config)
                         init_chip8(chip8, *config, chip8->rom_name);
                         break;
 
+                    case SDLK_RIGHTBRACKET:
+                        // ']': Fast forward
+                        if (config->insts_per_second <= 3500)
+                            config->insts_per_second += 350;
+                        break;
+
+                    case SDLK_LEFTBRACKET:
+                        // '[': Slow down
+                        if (config->insts_per_second >= 350)
+                            config->insts_per_second -= 350;
+                        break;
+
                     case SDLK_j:
                         // 'j': Decrease color lerp rate 
                         if (config->color_lerp_rate > 0.1)
