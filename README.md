@@ -3,6 +3,8 @@ CHIP-8 emulator/interpreter written in C and SDL3.
 
 This is a fun project to get into writing emulators, drawing simple graphics, and appreciating the tech of the past.
 
+![chip8-ibm-logo](https://github.com/user-attachments/assets/0fc8d75a-f291-41b5-bd9c-18c3e8de0b14)
+
 ## Build
 SDL 3.0 Library is required as a dependency.
 ```
